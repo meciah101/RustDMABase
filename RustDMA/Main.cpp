@@ -399,7 +399,7 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 
 			lastPosUpdateTime = now;
 		}
-		//test
+		
 		if (elapsed.count() >= 5.0) {
 
 			entityDictionary = createEntityDictionary(gameAssemblyBase);
