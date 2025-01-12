@@ -2,6 +2,8 @@
   A simple tool that reads memory using a DMA card and prints out information about the local player, nearby players, NPCs, and animals.
 
 ## Showcase
+
+All dictionaries automatically update and so does the information about each entity within it.
 ```
 Local Player Dictionary:
 2404756922368, BasePlayer LocalPlayer 6 Position: (593.798, 3.70077, 1266.54) Distance: 0
