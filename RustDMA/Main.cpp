@@ -339,17 +339,14 @@ void filterEntityDictionary(
 	std::unordered_map<uint64_t, entityInfo>& npcDict,
 	std::unordered_map<uint64_t, entityInfo>& npaDict
 ) {
-	// Clear all output dictionaries first
 	localPlayerDict.clear();
 	playerDict.clear();
 	npcDict.clear();
 	npaDict.clear();
 
-	// Iterate over the input dictionary once and sort based on the className and prefabName
 	for (const auto& pair : inputDict) {
 		const entityInfo& entity = pair.second;
 
-		// Sort by prefabName first for quick classification
 		if (entity.prefabName == "LocalPlayer") {
 			localPlayerDict[pair.first] = entity;
 		}
@@ -401,13 +398,11 @@ void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict,
 void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 	std::unordered_map<uint64_t, entityInfo> entityDictionary = createEntityDictionary(gameAssemblyBase);
 
-	// Initialize filtered dictionaries
 	std::unordered_map<uint64_t, entityInfo> localPlayerDictionary;
 	std::unordered_map<uint64_t, entityInfo> playerDictionary;
 	std::unordered_map<uint64_t, entityInfo> NPCDictionary;
 	std::unordered_map<uint64_t, entityInfo> NPADictionary;
 
-	// Filter the entity dictionary
 	filterEntityDictionary(entityDictionary, localPlayerDictionary, playerDictionary, NPCDictionary, NPADictionary);
 
 	auto lastUpdateTime = std::chrono::steady_clock::now();
@@ -418,11 +413,9 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 		std::chrono::duration<double> elapsed = now - lastUpdateTime;
 		std::chrono::duration<double> posElapsed = now - lastPosUpdateTime;
 
-		// Update position and print every 0.1 seconds
 		if (posElapsed.count() >= 0.1) {
 			system("cls");
 
-			// Assuming we have at least one local player, get the position from the first entry
 			if (!localPlayerDictionary.empty()) {
 				Vec3 localPlayerPos = getPos(localPlayerDictionary.begin()->first);
 
@@ -436,9 +429,7 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 			lastPosUpdateTime = now;
 		}
 
-		// Update every 5 seconds
 		if (elapsed.count() >= 5.0) {
-			// Re-fetch and re-filter the entity dictionary
 			entityDictionary = createEntityDictionary(gameAssemblyBase);
 			filterEntityDictionary(entityDictionary, localPlayerDictionary, playerDictionary, NPCDictionary, NPADictionary);
 

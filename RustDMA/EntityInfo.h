@@ -12,4 +12,4 @@ struct entityInfo {
     friend std::ostream& operator<<(std::ostream& os, const entityInfo& entity);
 };
 
-#endif // ENTITYINFO_H
+#endif
