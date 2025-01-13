@@ -179,6 +179,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EntityInfo.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Memory\Memory.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Misc\Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="EntityInfo.h" />
     <ClInclude Include="Memory\DMAHandler.h" />
     <ClInclude Include="Memory\Memory.h" />

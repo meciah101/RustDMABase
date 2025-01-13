@@ -8,6 +8,7 @@
 #include <string>
 #include <thread>
 #include <Offsets.h>
+#include "Camera.h"
 
 uint64_t gameAssemblyBase;
 std::unordered_map<uint64_t, entityInfo> globalEntityDict;
@@ -120,13 +121,9 @@ uint64_t decryptInventoryPointer(uint64_t pointer)
 	return il2cpp_object;
 }
 
-struct Vec3 {
-	float x, y, z;
-};
-
-Vec3 getPos(uint64_t basePlayerAddress) {
+Vector3 getPos(uint64_t basePlayerAddress) {
 	uint64_t playerModel = TargetProcess.Read<uint64_t>(basePlayerAddress + PlayerModelOffset);
-	Vec3 playerModelPosition = TargetProcess.Read<Vec3>(playerModel + PlayerModelPositionOffset);
+	Vector3 playerModelPosition = TargetProcess.Read<Vector3>(playerModel + PlayerModelPositionOffset);
 
 	return playerModelPosition;
 }
@@ -365,22 +362,24 @@ void filterEntityDictionary(
 }
 
 
-float calculateDistance(const Vec3& pos1, const Vec3& pos2) {
+float calculateDistance(const Vector3& pos1, const Vector3& pos2) {
 	return sqrtf(powf(pos2.x - pos1.x, 2) + powf(pos2.y - pos1.y, 2) + powf(pos2.z - pos1.z, 2));
 }
 
 
 
-void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict, const std::string& name, const Vec3& localPlayerPos) {
+void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict, const std::string& name, const Vector3& localPlayerPos, ViewMatrix Matrix) {
 	std::cout << name << ":\n";
 	for (const auto& pair : dict) {
 		std::cout << pair.first << ", " << pair.second;
 
 		if (pair.second.className == "BasePlayer") {
-			Vec3 position = getPos(pair.first);
+			Vector3 position = getPos(pair.first);
+			Vector2 screen_position = WorldToScreen(position, Matrix);
 			uint32_t flags = getPlayerFlags(pair.first);
 
 			std::cout << " Position: (" << position.x << ", " << position.y << ", " << position.z << ")";
+			std::cout << " Position on screen : (" << screen_position.x << ", " << screen_position.y << ")";
 
 			float distance = calculateDistance(localPlayerPos, position);
 			std::cout << " Distance: " << distance;
@@ -395,7 +394,7 @@ void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict,
 	std::cout << "\n";
 }
 
-void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
+void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase, uint64_t camera) {
 	std::unordered_map<uint64_t, entityInfo> entityDictionary = createEntityDictionary(gameAssemblyBase);
 
 	std::unordered_map<uint64_t, entityInfo> localPlayerDictionary;
@@ -417,13 +416,14 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 			system("cls");
 
 			if (!localPlayerDictionary.empty()) {
-				Vec3 localPlayerPos = getPos(localPlayerDictionary.begin()->first);
+				Vector3 localPlayerPos = getPos(localPlayerDictionary.begin()->first);
+				ViewMatrix CameraMatrix = GetViewMatrix(camera);
 
 				// Print filtered dictionaries with position
-				printEntityDictionary(localPlayerDictionary, "Local Player Dictionary", localPlayerPos);
-				printEntityDictionary(playerDictionary, "Player Dictionary", localPlayerPos);
-				printEntityDictionary(NPCDictionary, "NPC Dictionary", localPlayerPos);
-				printEntityDictionary(NPADictionary, "NPA Dictionary", localPlayerPos);
+				printEntityDictionary(localPlayerDictionary, "Local Player Dictionary", localPlayerPos, CameraMatrix);
+				printEntityDictionary(playerDictionary, "Player Dictionary", localPlayerPos, CameraMatrix);
+				printEntityDictionary(NPCDictionary, "NPC Dictionary", localPlayerPos, CameraMatrix);
+				printEntityDictionary(NPADictionary, "NPA Dictionary", localPlayerPos, CameraMatrix);
 			}
 
 			lastPosUpdateTime = now;
@@ -451,5 +451,29 @@ void main()
 
 	gameAssemblyBase = TargetProcess.GetBaseAddress("GameAssembly.dll");
 
-	updateAndPrintEntityDictionariesWithPos(gameAssemblyBase);
+	uint64_t camera_manager = TargetProcess.Read<uint64_t>(gameAssemblyBase + 0xDE3DC80);
+
+	if (!camera_manager) {
+		return;
+	}
+
+	uint64_t camera_static = TargetProcess.Read<uint64_t>(camera_manager + 0xB8);
+
+	if (!camera_static) {
+		return;
+	}
+
+	uint64_t camera_object = TargetProcess.Read<uint64_t>(camera_static + 0xE0);
+
+	if (!camera_object) {
+		return;
+	}
+
+	uint64_t camera = TargetProcess.Read<uint64_t>(camera_object + 0x10);
+
+	if (!camera) {
+		return;
+	}
+
+	updateAndPrintEntityDictionariesWithPos(gameAssemblyBase, camera);
 }
