@@ -1,24 +1,14 @@
 #include "pch.h"
 #include "memory.h"
 #include "CheatFunction.h"
+#include "EntityInfo.h"
 #include <dwmapi.h>
 #include <iostream>
 #include <unordered_map>
 #include <string>
 #include <thread>
+#include <Offsets.h>
 
-struct entityInfo {
-	std::string className;
-	std::string prefabName;
-	WORD tag;
-
-	friend std::ostream& operator<<(std::ostream& os, const entityInfo& entity) {
-		os << entity.className << " " << entity.prefabName << " " << entity.tag;
-		return os;
-	}
-};
-
-uint64_t il2cppGCHandleBase = 0xE1A5BF0;
 uint64_t gameAssemblyBase;
 std::unordered_map<uint64_t, entityInfo> globalEntityDict;
 
@@ -135,25 +125,23 @@ struct Vec3 {
 };
 
 Vec3 getPos(uint64_t basePlayerAddress) {
-	uint64_t playerModelAddress = TargetProcess.Read<uint64_t>(basePlayerAddress + 0x258);
-	Vec3 position = TargetProcess.Read<Vec3>(playerModelAddress + 0x1D0);
+	uint64_t playerModel = TargetProcess.Read<uint64_t>(basePlayerAddress + PlayerModelOffset);
+	Vec3 playerModelPosition = TargetProcess.Read<Vec3>(playerModel + PlayerModelPositionOffset);
 
-	return position;
+	return playerModelPosition;
 }
 
 std::unordered_map<uint64_t, entityInfo> createEntityDictionary(uint64_t gameAssemblyBase) {
 	std::unordered_map<uint64_t, entityInfo> dict;
 
-	uint64_t baseNetwork = 233477144;
-
-	uint64_t baseNet = TargetProcess.Read<uint64_t>(gameAssemblyBase + baseNetwork);
+	uint64_t baseNetworkable = TargetProcess.Read<uint64_t>(gameAssemblyBase + BaseNetworkableOffset);
 	//printf("baseNet: %llx\n", baseNet);
-	if (!baseNet) {
+	if (!baseNetworkable) {
 		printf("Failed to Read baseNet\n");
 		return dict;
 	}
 
-	uint64_t staticBaseNet = TargetProcess.Read<uint64_t>(baseNet + 0xB8);
+	uint64_t staticBaseNet = TargetProcess.Read<uint64_t>(baseNetworkable + staticBaseNetOffset);
 	//printf("staticBaseNet: %llx\n", staticBaseNet);
 	if (!staticBaseNet) {
 		printf("Failed to Read staticBaseNet\n");
@@ -301,7 +289,7 @@ std::unordered_map<uint64_t, entityInfo> createEntityDictionary(uint64_t gameAss
 }
 
 uint32_t getPlayerFlags(uint64_t basePlayerAddress) {
-	return TargetProcess.Read<uint32_t>(basePlayerAddress + 0x538);
+	return TargetProcess.Read<uint32_t>(basePlayerAddress + PlayerFlagsOffset);
 }
 
 std::unordered_map<uint64_t, entityInfo> createPlayerDictionary(const std::unordered_map<uint64_t, entityInfo>& inputDict) {
@@ -344,9 +332,47 @@ std::unordered_map<uint64_t, entityInfo> createNPADictionary(const std::unordere
 	return dict;
 };
 
+void filterEntityDictionary(
+	const std::unordered_map<uint64_t, entityInfo>& inputDict,
+	std::unordered_map<uint64_t, entityInfo>& localPlayerDict,
+	std::unordered_map<uint64_t, entityInfo>& playerDict,
+	std::unordered_map<uint64_t, entityInfo>& npcDict,
+	std::unordered_map<uint64_t, entityInfo>& npaDict
+) {
+	// Clear all output dictionaries first
+	localPlayerDict.clear();
+	playerDict.clear();
+	npcDict.clear();
+	npaDict.clear();
+
+	// Iterate over the input dictionary once and sort based on the className and prefabName
+	for (const auto& pair : inputDict) {
+		const entityInfo& entity = pair.second;
+
+		// Sort by prefabName first for quick classification
+		if (entity.prefabName == "LocalPlayer") {
+			localPlayerDict[pair.first] = entity;
+		}
+		else if (entity.className == "BasePlayer" && entity.prefabName != "LocalPlayer") {
+			playerDict[pair.first] = entity;
+		}
+		else if (entity.className == "BanditGuard" || entity.className == "ScientistNPC" ||
+			entity.className == "TunnelDweller" || entity.className == "UnderwaterDweller") {
+			npcDict[pair.first] = entity;
+		}
+		else if (entity.className == "Boar" || entity.className == "Stag" || entity.className == "Bear" ||
+			entity.className == "Wolf2" || entity.className == "RidableHorse") {
+			npaDict[pair.first] = entity;
+		}
+	}
+}
+
+
 float calculateDistance(const Vec3& pos1, const Vec3& pos2) {
 	return sqrtf(powf(pos2.x - pos1.x, 2) + powf(pos2.y - pos1.y, 2) + powf(pos2.z - pos1.z, 2));
 }
+
+
 
 void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict, const std::string& name, const Vec3& localPlayerPos) {
 	std::cout << name << ":\n";
@@ -374,10 +400,15 @@ void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict,
 
 void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 	std::unordered_map<uint64_t, entityInfo> entityDictionary = createEntityDictionary(gameAssemblyBase);
-	std::unordered_map<uint64_t, entityInfo> localPlayerDictionary = createLocalPlayerDictionary(entityDictionary);
-	std::unordered_map<uint64_t, entityInfo> playerDictionary = createPlayerDictionary(entityDictionary);
-	std::unordered_map<uint64_t, entityInfo> NPCDictionary = createNPCDictionary(entityDictionary);
-	std::unordered_map<uint64_t, entityInfo> NPADictionary = createNPADictionary(entityDictionary);
+
+	// Initialize filtered dictionaries
+	std::unordered_map<uint64_t, entityInfo> localPlayerDictionary;
+	std::unordered_map<uint64_t, entityInfo> playerDictionary;
+	std::unordered_map<uint64_t, entityInfo> NPCDictionary;
+	std::unordered_map<uint64_t, entityInfo> NPADictionary;
+
+	// Filter the entity dictionary
+	filterEntityDictionary(entityDictionary, localPlayerDictionary, playerDictionary, NPCDictionary, NPADictionary);
 
 	auto lastUpdateTime = std::chrono::steady_clock::now();
 	auto lastPosUpdateTime = std::chrono::steady_clock::now();
@@ -387,26 +418,29 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase) {
 		std::chrono::duration<double> elapsed = now - lastUpdateTime;
 		std::chrono::duration<double> posElapsed = now - lastPosUpdateTime;
 
+		// Update position and print every 0.1 seconds
 		if (posElapsed.count() >= 0.1) {
 			system("cls");
 
-			Vec3 localPlayerPos = getPos(localPlayerDictionary.begin()->first);
+			// Assuming we have at least one local player, get the position from the first entry
+			if (!localPlayerDictionary.empty()) {
+				Vec3 localPlayerPos = getPos(localPlayerDictionary.begin()->first);
 
-			printEntityDictionary(localPlayerDictionary, "Local Player Dictionary", localPlayerPos);
-			printEntityDictionary(playerDictionary, "Player Dictionary", localPlayerPos);
-			printEntityDictionary(NPCDictionary, "NPC Dictionary", localPlayerPos);
-			printEntityDictionary(NPADictionary, "NPA Dictionary", localPlayerPos);
+				// Print filtered dictionaries with position
+				printEntityDictionary(localPlayerDictionary, "Local Player Dictionary", localPlayerPos);
+				printEntityDictionary(playerDictionary, "Player Dictionary", localPlayerPos);
+				printEntityDictionary(NPCDictionary, "NPC Dictionary", localPlayerPos);
+				printEntityDictionary(NPADictionary, "NPA Dictionary", localPlayerPos);
+			}
 
 			lastPosUpdateTime = now;
 		}
-		
-		if (elapsed.count() >= 5.0) {
 
+		// Update every 5 seconds
+		if (elapsed.count() >= 5.0) {
+			// Re-fetch and re-filter the entity dictionary
 			entityDictionary = createEntityDictionary(gameAssemblyBase);
-			localPlayerDictionary = createLocalPlayerDictionary(entityDictionary);
-			playerDictionary = createPlayerDictionary(entityDictionary);
-			NPCDictionary = createNPCDictionary(entityDictionary);
-			NPADictionary = createNPADictionary(entityDictionary);
+			filterEntityDictionary(entityDictionary, localPlayerDictionary, playerDictionary, NPCDictionary, NPADictionary);
 
 			lastUpdateTime = now;
 		}
