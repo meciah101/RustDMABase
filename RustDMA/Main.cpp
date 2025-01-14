@@ -289,46 +289,6 @@ uint32_t getPlayerFlags(uint64_t basePlayerAddress) {
 	return TargetProcess.Read<uint32_t>(basePlayerAddress + PlayerFlagsOffset);
 }
 
-std::unordered_map<uint64_t, entityInfo> createPlayerDictionary(const std::unordered_map<uint64_t, entityInfo>& inputDict) {
-	std::unordered_map<uint64_t, entityInfo> dict;
-	for (const auto& pair : inputDict) {
-		if (pair.second.className == "BasePlayer" && pair.second.prefabName != "LocalPlayer") {
-			dict[pair.first] = pair.second;
-		}
-	}
-	return dict;
-};
-
-std::unordered_map<uint64_t, entityInfo> createLocalPlayerDictionary(const std::unordered_map<uint64_t, entityInfo>& inputDict) {
-	std::unordered_map<uint64_t, entityInfo> dict;
-	for (const auto& pair : inputDict) {
-		if (pair.second.prefabName == "LocalPlayer") {
-			dict[pair.first] = pair.second;
-		}
-	}
-	return dict;
-};
-
-std::unordered_map<uint64_t, entityInfo> createNPCDictionary(const std::unordered_map<uint64_t, entityInfo>& inputDict) {
-	std::unordered_map<uint64_t, entityInfo> dict;
-	for (const auto& pair : inputDict) {
-		if (pair.second.className == "BanditGuard" || pair.second.className == "ScientistNPC" || pair.second.className == "TunnelDweller" || pair.second.className == "UnderwaterDweller") {
-			dict[pair.first] = pair.second;
-		}
-	}
-	return dict;
-};
-
-std::unordered_map<uint64_t, entityInfo> createNPADictionary(const std::unordered_map<uint64_t, entityInfo>& inputDict) {
-	std::unordered_map<uint64_t, entityInfo> dict;
-	for (const auto& pair : inputDict) {
-		if (pair.second.className == "Boar" || pair.second.className == "Stag" || pair.second.className == "Bear" || pair.second.className == "Wolf2" || pair.second.className == "RidableHorse") {
-			dict[pair.first] = pair.second;
-		}
-	}
-	return dict;
-};
-
 void filterEntityDictionary(
 	const std::unordered_map<uint64_t, entityInfo>& inputDict,
 	std::unordered_map<uint64_t, entityInfo>& localPlayerDict,
