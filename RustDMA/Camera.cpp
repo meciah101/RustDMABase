@@ -1,8 +1,8 @@
 #include "Pch.h"
 #include "Camera.h"
 
-constexpr int screenWidth = 1920; //QUERY AUTOMATICALLY EVENTUALLY
-constexpr int screenHeight = 1080;
+constexpr int screenWidth = 2560; //QUERY AUTOMATICALLY EVENTUALLY
+constexpr int screenHeight = 1440;
 
 Vector2 WorldToScreen(const Vector3& position, const ViewMatrix& viewMatrix)
 {

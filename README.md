@@ -6,27 +6,17 @@
 All dictionaries automatically update and so does the information about each entity within it.
 ```
 Local Player Dictionary:
-2404756922368, BasePlayer LocalPlayer 6 Position: (593.798, 3.70077, 1266.54) Distance: 0
+2333852524544, BasePlayer LocalPlayer 6 Position: (-1266.9, 5.53523, 886.926) Position on screen : (0, 0) Distance: 0
 
 Player Dictionary:
-2404785543168, BasePlayer assets/prefabs/player/player.prefab 6 Position: (709.837, 8.44316, 1280.47) Distance: 116.97
-2393507401728, BasePlayer assets/prefabs/player/player.prefab 6 Position: (436.22, 0.924625, 1024.45) Distance: 288.864
-2393467222016, BasePlayer assets/prefabs/player/player.prefab 6 Position: (598.622, 8.50341e-08, 1117.33) Distance: 149.333 (Player is sleeping)
-2405062840320, BasePlayer assets/prefabs/player/player.prefab 6 Position: (460.862, -1.48414, 1295.87) Distance: 136.232
-2404770918400, BasePlayer assets/prefabs/player/player.prefab 6 Position: (712.267, 7.13636, 1283.03) Distance: 119.662
-2387972032512, BasePlayer assets/prefabs/player/player.prefab 6 Position: (709.863, 10.6726, 1286.05) Distance: 117.9
-2393365833728, BasePlayer assets/prefabs/player/player.prefab 6 Position: (828.896, 18.0835, 1037.08) Distance: 328.831
-2378871136256, BasePlayer assets/prefabs/player/player.prefab 6 Position: (525.303, 0, 1374.17) Distance: 127.635 (Player is sleeping)
-2387972157440, BasePlayer assets/prefabs/player/player.prefab 6 Position: (511.989, 2.14448, 1279.7) Distance: 82.8753 (Player is sleeping)
-2393507403776, BasePlayer assets/prefabs/player/player.prefab 6 Position: (514.48, 0.73698, 1278.34) Distance: 80.2453 (Player is sleeping)
-2387933626368, BasePlayer assets/prefabs/player/player.prefab 6 Position: (842.224, 16.9676, 1259.93) Distance: 248.868 (Player is sleeping)
-2393450706944, BasePlayer assets/prefabs/player/player.prefab 6 Position: (518.611, 0.0778262, 1091.58) Distance: 190.463 (Player is sleeping)
-2393365831680, BasePlayer assets/prefabs/player/player.prefab 6 Position: (830.154, 18.2684, 1035.88) Distance: 330.571
-2393450704896, BasePlayer assets/prefabs/player/player.prefab 6 Position: (731.406, -0.108317, 1139.41) Distance: 187.378 (Player is sleeping)
-2393408679936, BasePlayer assets/prefabs/player/player.prefab 6 Position: (647.402, 6.47063, 1236.89) Distance: 61.3195 (Player is sleeping)
-2393404010496, BasePlayer assets/prefabs/player/player.prefab 6 Position: (829.328, 17.3406, 1036.02) Distance: 329.845 (Player is sleeping)
-2387933628416, BasePlayer assets/prefabs/player/player.prefab 6 Position: (500.419, 0, 1350.43) Distance: 125.581 (Player is sleeping)
-2404770920448, BasePlayer assets/prefabs/player/player.prefab 6 Position: (695.974, 0.994733, 1421.2) Distance: 185.391
+2321684840448, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1017.64, 1.13512, 626.688) Position on screen : (1133.01, 695.966) Distance: 360.38
+2334246170624, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1324.35, 3.9035, 741.067) Position on screen : (2264.33, 708.322) Distance: 156.774
+2334241968128, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1231.79, 32.8274, 735.586) Position on screen : (1533.52, 555.636) Distance: 157.738
+2334241695744, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1314.47, 1.09815, 722.298) Position on screen : (2090.8, 721.541) Distance: 171.42 (Player is sleeping)
+2331191613440, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1143.42, -0.636481, 697.151) Position on screen : (1269.8, 708.355) Distance: 226.499 (Player is sleeping)
+2331771019264, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1248.7, 2.24958, 692.708) Position on screen : (1645.64, 703.765) Distance: 195.098 (Player is sleeping)
+2334278916096, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1025.26, 2.15851, 1068.61) Position on screen : (0, 0) Distance: 302.344 (Player is sleeping)
+2321684842496, BasePlayer assets/prefabs/player/player.prefab 6 Position: (-1157.9, -0.518829, 677.325) Position on screen : (1340.08, 707.056) Distance: 236.326 (Player is sleeping)
 
 NPC Dictionary:
 2393408681984, ScientistNPC assets/rust.ai/agents/npcplayer/humannpc/scientist/scientistnpc_junkpile_pistol.prefab 6
