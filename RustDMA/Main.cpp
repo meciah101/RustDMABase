@@ -400,6 +400,33 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase, uint64_t
 	}
 }
 
+uint64_t cameraSetup(uint64_t gameAssemblyBase) {
+
+	uint64_t camera_manager = TargetProcess.Read<uint64_t>(gameAssemblyBase + 0xDE3DC80);
+
+	if (!camera_manager) {
+		return 0;
+	}
+
+	uint64_t camera_static = TargetProcess.Read<uint64_t>(camera_manager + 0xB8);
+
+	if (!camera_static) {
+		return 0;
+	}
+
+	uint64_t camera_object = TargetProcess.Read<uint64_t>(camera_static + 0xE0);
+
+	if (!camera_object) {
+		return 0;
+	}
+
+	uint64_t camera = TargetProcess.Read<uint64_t>(camera_object + 0x10);
+
+	if (!camera) {
+		return 0;
+	}
+	return camera;
+}
 
 void main()
 {
@@ -411,29 +438,7 @@ void main()
 
 	gameAssemblyBase = TargetProcess.GetBaseAddress("GameAssembly.dll");
 
-	uint64_t camera_manager = TargetProcess.Read<uint64_t>(gameAssemblyBase + 0xDE3DC80);
-
-	if (!camera_manager) {
-		return;
-	}
-
-	uint64_t camera_static = TargetProcess.Read<uint64_t>(camera_manager + 0xB8);
-
-	if (!camera_static) {
-		return;
-	}
-
-	uint64_t camera_object = TargetProcess.Read<uint64_t>(camera_static + 0xE0);
-
-	if (!camera_object) {
-		return;
-	}
-
-	uint64_t camera = TargetProcess.Read<uint64_t>(camera_object + 0x10);
-
-	if (!camera) {
-		return;
-	}
+	uint64_t camera = cameraSetup(gameAssemblyBase);
 
 	updateAndPrintEntityDictionariesWithPos(gameAssemblyBase, camera);
 }
