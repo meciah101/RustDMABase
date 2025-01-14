@@ -354,6 +354,20 @@ void printEntityDictionary(const std::unordered_map<uint64_t, entityInfo>& dict,
 	std::cout << "\n";
 }
 
+//admin flag
+void enableAdminFlag(uint64_t basePlayerAddress) {
+	uint32_t activeFlags = TargetProcess.Read<uint32_t>(basePlayerAddress + PlayerFlagsOffset);
+
+	if ((activeFlags & 4) != 4) {
+		TargetProcess.Write<uint32_t>(basePlayerAddress + PlayerFlagsOffset, activeFlags | 4);
+
+		std::cout << "Admin flag enabled: " << std::hex << basePlayerAddress << std::endl;
+	}
+	else {
+		std::cout << "Admin flag is already enabled: " << std::hex << basePlayerAddress << std::endl;
+	}
+}
+
 void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase, uint64_t camera) {
 	std::unordered_map<uint64_t, entityInfo> entityDictionary = createEntityDictionary(gameAssemblyBase);
 
@@ -373,13 +387,16 @@ void updateAndPrintEntityDictionariesWithPos(uint64_t gameAssemblyBase, uint64_t
 		std::chrono::duration<double> posElapsed = now - lastPosUpdateTime;
 
 		if (posElapsed.count() >= 0.1) {
-			system("cls");
 
 			if (!localPlayerDictionary.empty()) {
-				Vector3 localPlayerPos = getPos(localPlayerDictionary.begin()->first);
+				uint64_t localPlayerAddress = localPlayerDictionary.begin()->first;
+
+				//enable admin flag
+				enableAdminFlag(localPlayerAddress);
+
+				Vector3 localPlayerPos = getPos(localPlayerAddress);
 				ViewMatrix CameraMatrix = GetViewMatrix(camera);
 
-				// Print filtered dictionaries with position
 				printEntityDictionary(localPlayerDictionary, "Local Player Dictionary", localPlayerPos, CameraMatrix);
 				printEntityDictionary(playerDictionary, "Player Dictionary", localPlayerPos, CameraMatrix);
 				printEntityDictionary(NPCDictionary, "NPC Dictionary", localPlayerPos, CameraMatrix);
